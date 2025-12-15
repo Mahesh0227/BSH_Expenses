@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BSH EXPENSES — Auth</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root{
+      --bg-left: #eaf6ff;
+      --bg-right: #f7fbff;
+      --brand-blue: #2f8afc;
+      --brand-blue-600: #2878e6;
+      --muted: #6b7280;
+      --card-bg: #ffffff;
+      --info-bg: #e7f1ff;
+      --soft-shadow: 0 8px 30px rgba(16,24,40,0.06);
+    }
+    body {
+      background: linear-gradient(90deg, var(--bg-left) 0%, var(--bg-right) 100%);
+      -webkit-font-smoothing: antialiased;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    .glass { background: rgba(255,255,255,0.94); backdrop-filter: blur(6px); }
+    .card { box-shadow: var(--soft-shadow); border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.04); }
+    .info-box { background: linear-gradient(180deg, rgba(248,253,255,1) 0%, rgba(231,241,255,1) 100%); border-radius: 10px; border: 1px solid rgba(47,138,252,0.08); }
+    input:focus, select:focus, textarea:focus { outline: none; box-shadow: 0 0 0 4px rgba(47,138,252,0.08); border-color: var(--brand-blue-600); }
+    .brand-icon { width: 56px; height: 56px; border-radius: 9999px; background: linear-gradient(180deg,#58a4ff,#2f8afc); display:flex; align-items:center; justify-content:center; box-shadow: 0 6px 18px rgba(47,138,252,0.18); }
+    .fade { transition: all .22s ease; }
+    .hidden-scale { transform: scale(.98); opacity: 0; height: 0; overflow: hidden; pointer-events: none; }
+    .visible-scale { transform: scale(1); opacity: 1; height: auto; pointer-events: auto; }
+    form.fade { transition: opacity .22s ease, transform .22s ease, height .22s ease; }
+    @media (max-width: 420px) { .card { padding-left: 18px; padding-right: 18px; } }
+    .spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); border-top-color: rgba(255,255,255,0.9); animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .msg { margin-top: 12px; font-size: 0.9rem; }
+  </style>
+</head>
+<body class="min-h-screen flex items-start justify-center py-12 px-6">
+
+  <div class="w-full max-w-5xl">
+
+    <!-- header -->
+    <div class="flex flex-col items-center mb-8">
+      <div class="brand-icon mb-4" aria-hidden>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M3 17h3v4H3v-4zM9 11h3v10H9V11zM15 5h3v16h-3V5z" fill="white"/>
+        </svg>
+      </div>
+
+      <h1 class="text-3xl font-extrabold" style="color:var(--brand-blue);">BSH EXPENSES</h1>
+      <p class="text-sm mt-2 text-gray-500 max-w-[640px] text-center">Manage your income, expenses, and savings efficiently</p>
+    </div>
+
+    <!-- card -->
+    <div class="flex justify-center">
+      <div id="authCard" class="card glass w-full max-w-[420px] p-6">
+
+        <div class="flex flex-col items-center">
+          <h2 id="cardTitle" class="text-xl font-semibold text-slate-800">Welcome Back</h2>
+          <p id="cardSubtitle" class="text-sm text-gray-500 mt-1">Sign in to your account or create a new one</p>
+        </div>
+
+        <!-- info box -->
+        <div class="info-box mt-6 p-3 text-sm text-slate-700">
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0 mt-0.5">
+              <div class="w-8 h-8 rounded-full bg-white/60 flex items-center justify-center border border-white/40">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2l7 3v5c0 5-3.7 9.8-7 11-3.3-1.2-7-6-7-11V5l7-3z" fill="#2f8afc"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="flex-1">
+              <div class="font-medium text-slate-800">Security Features Active</div>
+              <ul class="mt-2 text-xs text-slate-700 list-disc pl-4 space-y-0.5">
+                <li>Input validation and sanitization</li>
+                <li>Rate limiting protection</li>
+                <li>Secure authentication with Supabase</li>
+                <li>Row-level security policies</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- tabs -->
+        <div class="mt-6 w-full flex items-center gap-3" role="tablist" aria-label="Sign in or sign up">
+          <button id="btnSignIn" aria-controls="formSignIn" role="tab" class="flex-1 py-2 rounded-md bg-[var(--brand-blue)] text-white font-semibold">Sign In</button>
+          <button id="btnSignUp" aria-controls="formSignUp" role="tab" class="flex-1 py-2 rounded-md bg-slate-100 text-slate-700 font-medium">Sign Up</button>
+        </div>
+
+        <!-- Sign In form -->
+        <form id="formSignIn" action="/auth/login" method="post" class="mt-5 space-y-4 fade visible-scale" aria-hidden="false">
+          <div>
+            <label class="text-xs font-medium text-slate-600">Email Address</label>
+            <div class="mt-2 relative">
+              <input name="email" type="email" required placeholder="Enter your email address"
+                     class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white text-sm" />
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-medium text-slate-600">Password</label>
+            <div class="mt-2 relative">
+              <input id="signinPassword" name="password" type="password" required minlength="6"
+                     placeholder="Enter your password" class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white text-sm pr-12" />
+              <button type="button" data-toggle-for="signinPassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 toggle-btn">Show</button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-sm">
+            <label class="inline-flex items-center gap-2 text-slate-600">
+              <input type="checkbox" name="remember" class="h-4 w-4 rounded border-gray-300" />
+              Remember me
+            </label>
+            <a href="#" class="text-slate-600 hover:underline">Forgot your password?</a>
+          </div>
+
+          <div>
+            <button id="signinSubmit" type="submit" class="w-full py-3 rounded-lg bg-[var(--brand-blue)] hover:bg-[var(--brand-blue-600)] text-white font-semibold flex items-center justify-center gap-2">
+              <span id="signinLabel">Sign In</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Sign Up form (hidden by default) -->
+        <form id="formSignUp" action="/auth/register" method="post" class="mt-5 space-y-4 fade hidden-scale" onsubmit="return validateSignup(event)" aria-hidden="true">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="sm:col-span-2">
+              <label class="text-xs font-medium text-slate-600">Email Address</label>
+              <input name="email" type="email" required placeholder="Enter your email address" class="mt-2 w-full px-4 py-3 rounded-lg border border-gray-200 bg-white text-sm" />
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-slate-600">Password</label>
+              <input id="signupPassword" name="password" type="password" required minlength="8" placeholder="Create a strong password" class="mt-2 w-full px-4 py-3 rounded-lg border border-gray-200 bg-white text-sm" />
+              <div class="text-xs text-slate-400 mt-1">Password must be at least 8 characters long</div>
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-slate-600">Confirm password</label>
+              <input id="signupConfirm" name="confirmPassword" type="password" required minlength="8" placeholder="Repeat password" class="mt-2 w-full px-4 py-3 rounded-lg border border-gray-200 bg-white text-sm" />
+            </div>
+
+            <div class="sm:col-span-2 flex items-center gap-2">
+              <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 rounded border-gray-300" />
+              <label for="terms" class="text-sm text-slate-600">I agree to the <a href="#" class="text-indigo-600 underline">Terms & Conditions</a></label>
+            </div>
+
+            <div class="sm:col-span-2">
+              <button id="signupSubmit" type="submit" class="w-full py-3 rounded-lg bg-[var(--brand-blue)] hover:bg-[var(--brand-blue-600)] text-white font-semibold flex items-center justify-center gap-2">
+                <span id="signupLabel">Create Account</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div id="formMessageContainer" class="mt-6 text-center"></div>
+        <div class="mt-6 text-center text-xs text-slate-400">Secure financial management for professionals</div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = {
+      base: '', // set to 'http://localhost:8080' if loading file from filesystem and backend on localhost
+      credentials: 'same-origin',
+      tokenKey: 'bsh_token',
+      userKey: 'bsh_user',
+      async request(path, options = {}) {
+        const headers = Object.assign({}, options.headers || {});
+        if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+        const token = this.getToken();
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(this.base + path, Object.assign({ credentials: this.credentials, headers }, options));
+        const text = await res.text();
+        let data = null;
+        try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
+        if (!res.ok) {
+          const msg = (data && (data.error || data.message)) || (typeof data === 'string' ? data : res.statusText);
+          const err = new Error(msg || 'Request failed');
+          err.status = res.status;
+          err.data = data;
+          throw err;
+        }
+        if (data && data.token) localStorage.setItem(this.tokenKey, data.token);
+        if (data && data.user) localStorage.setItem(this.userKey, JSON.stringify(data.user));
+        return data;
+      },
+      logout() { localStorage.removeItem(this.tokenKey); localStorage.removeItem(this.userKey); },
+      getToken() { return localStorage.getItem(this.tokenKey); },
+      getCurrentUser() { const u = localStorage.getItem(this.userKey); return u ? JSON.parse(u) : null; }
+    };
+
+    function showMessage(text, type='error') {
+      const container = document.getElementById('formMessageContainer');
+      container.innerHTML = '';
+      if (!text) return;
+      const el = document.createElement('div');
+      el.className = 'msg';
+      el.style.color = type === 'error' ? '#b91c1c' : '#065f46';
+      el.innerText = text;
+      container.appendChild(el);
+    }
+
+    function setButtonLoading(btn, loading, labelText) {
+      if (!btn) return;
+      const label = btn.querySelector('span') || btn;
+      if (loading) {
+        btn.disabled = true;
+        if (label) label.style.opacity = '0.001';
+        let spinner = btn.querySelector('.spinner');
+        if (!spinner) {
+          spinner = document.createElement('span');
+          spinner.className = 'spinner';
+          spinner.setAttribute('aria-hidden', 'true');
+          btn.appendChild(spinner);
+        }
+      } else {
+        btn.disabled = false;
+        if (label) label.style.opacity = '';
+        const spinner = btn.querySelector('.spinner');
+        if (spinner) spinner.remove();
+        if (labelText && label) label.innerText = labelText;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnSignIn = document.getElementById('btnSignIn');
+      const btnSignUp = document.getElementById('btnSignUp');
+      const formSignIn = document.getElementById('formSignIn');
+      const formSignUp = document.getElementById('formSignUp');
+      const cardTitle = document.getElementById('cardTitle');
+      const cardSubtitle = document.getElementById('cardSubtitle');
+      const signinSubmit = document.getElementById('signinSubmit');
+      const signupSubmit = document.getElementById('signupSubmit');
+
+      function setActiveTab(tab) {
+        if (tab === 'signin') {
+          btnSignIn.classList.add('bg-[var(--brand-blue)]', 'text-white', 'font-semibold');
+          btnSignIn.classList.remove('bg-slate-100', 'text-slate-700', 'font-medium');
+          btnSignUp.classList.add('bg-slate-100', 'text-slate-700', 'font-medium');
+          btnSignUp.classList.remove('bg-[var(--brand-blue)]', 'text-white', 'font-semibold');
+
+          formSignIn.classList.remove('hidden-scale'); formSignIn.classList.add('visible-scale');
+          formSignIn.setAttribute('aria-hidden', 'false');
+          formSignUp.classList.remove('visible-scale'); formSignUp.classList.add('hidden-scale');
+          formSignUp.setAttribute('aria-hidden', 'true');
+
+          cardTitle.innerText = 'Welcome Back';
+          cardSubtitle.innerText = 'Sign in to your account or create a new one';
+        } else {
+          btnSignUp.classList.add('bg-[var(--brand-blue)]', 'text-white', 'font-semibold');
+          btnSignUp.classList.remove('bg-slate-100', 'text-slate-700', 'font-medium');
+          btnSignIn.classList.add('bg-slate-100', 'text-slate-700', 'font-medium');
+          btnSignIn.classList.remove('bg-[var(--brand-blue)]', 'text-white', 'font-semibold');
+
+          formSignUp.classList.remove('hidden-scale'); formSignUp.classList.add('visible-scale');
+          formSignUp.setAttribute('aria-hidden', 'false');
+          formSignIn.classList.remove('visible-scale'); formSignIn.classList.add('hidden-scale');
+          formSignIn.setAttribute('aria-hidden', 'true');
+
+          cardTitle.innerText = 'Create Account';
+          cardSubtitle.innerText = 'Sign up and start using the BSH Expenses dashboard';
+        }
+        void formSignIn.offsetWidth;
+        void formSignUp.offsetWidth;
+      }
+
+      btnSignIn.addEventListener('click', (e) => { e.preventDefault(); setActiveTab('signin'); });
+      btnSignUp.addEventListener('click', (e) => { e.preventDefault(); setActiveTab('signup'); });
+
+      document.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('.toggle-btn');
+        if (!btn) return;
+        const inputId = btn.getAttribute('data-toggle-for');
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        if (input.type === 'password') { input.type = 'text'; btn.innerText = 'Hide'; }
+        else { input.type = 'password'; btn.innerText = 'Show'; }
+      });
+
+      function validateSignupInline() {
+        const pw = document.getElementById('signupPassword').value;
+        const cpw = document.getElementById('signupConfirm').value;
+        if (pw !== cpw) {
+          showMessage('Passwords do not match. Please fix and try again.', 'error');
+          return false;
+        }
+        return true;
+      }
+      window.validateSignup = function (e) {
+        if (!validateSignupInline()) {
+          if (e && e.preventDefault) e.preventDefault();
+          return false;
+        }
+        return true;
+      };
+
+      setTimeout(() => {
+        formSignIn.classList.add('fade');
+        formSignUp.classList.add('fade');
+        setActiveTab('signin');
+      }, 10);
+
+      // Sign-up submit
+      formSignUp.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showMessage('', '');
+
+        const emailInput = formSignUp.querySelector('input[name="email"]');
+        const pwInput = document.getElementById('signupPassword');
+        const cpwInput = document.getElementById('signupConfirm');
+
+        const email = emailInput.value?.trim();
+        const password = pwInput.value;
+        const confirm = cpwInput.value;
+
+        if (!email || !password || !confirm) {
+          showMessage('Please fill all fields.', 'error');
+          return;
+        }
+        if (password.length < 8) {
+          showMessage('Password must be at least 8 characters.', 'error');
+          return;
+        }
+        if (password !== confirm) {
+          showMessage('Passwords do not match. Please fix and try again.', 'error');
+          return;
+        }
+
+        setButtonLoading(signupSubmit, true);
+
+        try {
+          const res = await fetch((API.base || '') + '/auth/register', {
+            method: 'POST',
+            credentials: API.credentials,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email, password })
+          });
+
+          const text = await res.text();
+          let data;
+          try { data = text ? JSON.parse(text) : null; } catch (err) { data = text; }
+
+          if (!res.ok) {
+            const msg = (data && (data.message || data.error)) || res.statusText || 'Registration failed';
+            showMessage(String(msg), 'error');
+            return;
+          }
+
+          showMessage('User created successfully. You can now sign in.', 'success');
+          formSignUp.reset();
+          setActiveTab('signin');
+
+        } catch (err) {
+          console.error(err);
+          showMessage('Network error. Could not register.','error');
+        } finally {
+          setButtonLoading(signupSubmit, false, 'Create Account');
+        }
+      });
+    });
+    
+    
+    <!-- Sign-in submit handler (paste inside DOMContentLoaded, after setActiveTab and helpers) -->
+    formSignIn.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showMessage('', ''); // clear previous messages
+
+      // read inputs
+      const emailInput = formSignIn.querySelector('input[name="email"]');
+      const pwInput = formSignIn.querySelector('input[name="password"]') || document.getElementById('signinPassword');
+
+      const email = emailInput.value?.trim();
+      const password = pwInput.value;
+
+      if (!email || !password) {
+        showMessage('Please enter email and password.', 'error');
+        return;
+      }
+
+      setButtonLoading(signinSubmit, true);
+
+      try {
+        const res = await fetch((API.base || '') + '/auth/login', {
+          method: 'POST',
+          credentials: API.credentials,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const text = await res.text();
+        let data;
+        try { data = text ? JSON.parse(text) : null; } catch (err) { data = text; }
+
+        if (!res.ok) {
+          // server returned 4xx/5xx
+          const msg = (data && (data.message || data.error)) || res.statusText || 'Login failed';
+          showMessage(String(msg), 'error');
+          return;
+        }
+
+        // Expecting { ok: true, message: "...", data: { id, email } }
+        if (data && data.ok) {
+          // store user info for later pages
+          if (data.data) {
+            try {
+              localStorage.setItem(API.userKey, JSON.stringify(data.data));
+            } catch (err) {
+              console.warn('Could not save user to localStorage', err);
+            }
+          }
+
+          // show success briefly then redirect to dashboard
+          showMessage('Login successful — redirecting...', 'success');
+
+          // small delay for UX (optional). If you don't want delay, remove setTimeout and go straight to location change.
+          setTimeout(() => {
+        	  window.location.href = "/dashboard";
+          }, 600);
+
+        } else {
+          // server responded ok HTTP but JSON says not ok (defensive)
+          const msg = (data && (data.message || 'Invalid credentials')) || 'Invalid credentials';
+          showMessage(String(msg), 'error');
+        }
+
+      } catch (err) {
+        console.error('Login error:', err);
+        showMessage('Network error: could not reach server.', 'error');
+      } finally {
+        setButtonLoading(signinSubmit, false, 'Sign In');
+      }
+    });
+
+  </script>
+</body>
+</html>

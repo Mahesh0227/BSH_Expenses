@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSH Expenses - Professional Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="max-w-7xl mx-auto p-4">
+        <!-- Header -->
+        <header class="bg-white shadow-md rounded-lg p-4 mb-6 flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fas fa-chart-line text-blue-600 text-3xl mr-3"></i>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">BSH EXPENSES</h1>
+                    <p class="text-sm text-gray-600">Financial Management System</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-gray-600">Welcome back! Track your finances professionally.</p>
+                <a href="#" class="text-blue-600 text-sm font-medium">Logout</a>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Left Sidebar -->
+            <aside class="lg:col-span-1">
+                <!-- Filter Data -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="fas fa-filter mr-2 text-blue-600"></i> Filter Data
+                    </h2>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Year</label>
+                    <select class="w-full p-2 border border-gray-300 rounded-md mb-4">
+                        <option>2025</option>
+                    </select>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Month</label>
+                    <select class="w-full p-2 border border-gray-300 rounded-md">
+                        <option>December</option>
+                    </select>
+                </div>
+
+                <!-- Sections Menu -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h2 class="text-lg font-semibold mb-4">Sections</h2>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="flex items-center bg-blue-600 text-white px-4 py-3 rounded-md font-medium">
+                            <i class="fas fa-arrow-down text-green-300 mr-3"></i> Income
+                        </a></li>
+                        <li><a href="#" class="flex items-center text-gray-700 hover:bg-gray-100 px-4 py-3 rounded-md">
+                            <i class="fas fa-arrow-up text-red-300 mr-3"></i> Expenses
+                        </a></li>
+                        <li><a href="#" class="flex items-center text-gray-700 hover:bg-gray-100 px-4 py-3 rounded-md">
+                            <i class="fas fa-piggy-bank mr-3"></i> Savings
+                        </a></li>
+                        <li><a href="#" class="flex items-center text-gray-700 hover:bg-gray-100 px-4 py-3 rounded-md">
+                            <i class="fas fa-chart-bar mr-3"></i> Reports
+                        </a></li>
+                        <li><a href="#" class="flex items-center text-gray-700 hover:bg-gray-100 px-4 py-3 rounded-md">
+                            <i class="fas fa-download mr-3"></i> Download Data
+                        </a></li>
+                        <li><a href="#" class="flex items-center text-gray-700 hover:bg-gray-100 px-4 py-3 rounded-md">
+                            <i class="fas fa-upload mr-3"></i> Upload Data
+                        </a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="lg:col-span-3 space-y-6">
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-green-50 rounded-lg shadow p-4 text-center">
+                        <p class="text-sm text-gray-600">Monthly Income Total</p>
+                        <p class="text-2xl font-bold text-green-600">₹0.00</p>
+                        <p class="text-xs text-gray-500">Total income this period</p>
+                    </div>
+                    <div class="bg-red-50 rounded-lg shadow p-4 text-center">
+                        <p class="text-sm text-gray-600">Monthly Expenses Total</p>
+                        <p class="text-2xl font-bold text-red-600">₹0.00</p>
+                        <p class="text-xs text-gray-500">Total expenses this period</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg shadow p-4 text-center">
+                        <p class="text-sm text-gray-600">Monthly Savings Total</p>
+                        <p class="text-2xl font-bold text-blue-600">₹0.00</p>
+                        <p class="text-xs text-gray-500">Total savings this period</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg shadow p-4 text-center">
+                        <p class="text-sm text-gray-600">In Account</p>
+                        <p class="text-2xl font-bold text-gray-800">₹0.00</p>
+                        <p class="text-xs text-gray-500">Available Balance</p>
+                    </div>
+                </div>
+
+                <!-- Add Income Form -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">Add Income</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Source</label>
+                            <input type="text" placeholder="e.g., Salary, Freelance" class="w-full p-2 border border-gray-300 rounded-md" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Date</label>
+                            <input type="text" value="11-12-2025" class="w-full p-2 border border-gray-300 rounded-md" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Amount (₹)</label>
+                            <input type="text" value="0.00" class="w-full p-2 border border-gray-300 rounded-md" />
+                        </div>
+                    </div>
+                    <button class="w-full bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700">Add Income</button>
+                </div>
+
+                <!-- Income Table -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">Income - December 2025</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="border-b">
+                                <tr>
+                                    <th class="py-2">Source</th>
+                                    <th class="py-2">Date</th>
+                                    <th class="py-2">Amount</th>
+                                    <th class="py-2">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4" class="text-center py-8 text-gray-500">No income records for this period</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
